@@ -1,0 +1,2 @@
+This folder contains all scripts that needs to be run by the Scheduler.
+Each Script have to be added in a folder with the same name as the binarie to be run.

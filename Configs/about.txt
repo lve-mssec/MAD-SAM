@@ -1,0 +1,1 @@
+This folder contains configuration settings for the scheduler itself.
