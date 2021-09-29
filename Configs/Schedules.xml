@@ -1,62 +1,131 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Tasks>
-    <!-- Hourly.: run every hour. Use "minute" to set at which run it should start (h:00, h:15, h:30, h:45).    -->
+    <!-- Hourly.: run every hour. Use "Quarter" to set at which quarter hour it should start (1 is between 00   -->
+    <!-- and 15, 2 between 15 and 30, 3 between 30 and 45 and 4 is between 45 and 00).                          -->
     <!--          If you whish to run the tasks more than once per hour, add as many input as desired.          -->
     <Task Name="Example 1" Frequency="Hourly" Enabled="Yes">
-        <runAt minute=15/>
-        <Script> 
-            <name="test"/>
-            <parameter="parameter1 'parameter 2' 'parameter 3 @ ici'"/>
-        </script>
-        <resultCode success=0 warning=1 error=2/>
-        <SuccessMessage="test script worked successfully"/>
-        <WarningMessage="test script raise a warning: please review the output"/>
-        <WarningError="Test script failed to run!"/>
-    </task>
+        <runAt Quarter='1'/>
+        <Script name="test"
+                parameter="parameter1 'parameter 2' 'parameter 3 @ ici'"
+        />
+        <resultCode success='0' warning='1' error='2'
+                    SuccessMessage="test script worked successfully"
+                    WarningMessage="test script raise a warning: please review the output"
+                    ErrorMessage="Test script failed to run!"
+        />
+    </Task>
 
-    <!-- Daily..: run every day. Use "hour" and "minute" to set your specifique time (with hour as 24 hours     -->
-    <!--          format and minute equals to 00, 15, 30 or 45).                                                -->
+    <Task Name="Example 1bis" Frequency="Hourly" Enabled="Yes">
+        <runAt Quarter='2'/>
+        <Script name="test"
+                parameter="parameter1 'parameter 2' 'parameter 3 @ ici'"
+        />
+        <resultCode success='0' warning='1' error='2'
+                    SuccessMessage="test script worked successfully"
+                    WarningMessage="test script raise a warning: please review the output"
+                    ErrorMessage="Test script failed to run!"
+        />
+    </Task>
+
+    <Task Name="Example 1ter" Frequency="Hourly" Enabled="Yes">
+        <runAt Quarter='3'/>
+        <Script name="test"
+                parameter="parameter1 'parameter 2' 'parameter 3 @ ici'"
+        />
+        <resultCode success='0' warning='1' error='2'
+                    SuccessMessage="test script worked successfully"
+                    WarningMessage="test script raise a warning: please review the output"
+                    ErrorMessage="Test script failed to run!"
+        />
+    </Task>
+
+    <Task Name="Example 1qua" Frequency="Hourly" Enabled="Yes">
+        <runAt Quarter='4'/>
+        <Script name="test"
+                parameter="parameter1 'parameter 2' 'parameter 3 @ ici'"
+        />
+        <resultCode success='0' warning='1' error='2'
+                    SuccessMessage="test script worked successfully"
+                    WarningMessage="test script raise a warning: please review the output"
+                    ErrorMessage="Test script failed to run!"
+        />
+    </Task>
+
+    <!-- Daily..: run every day. Use "hour" and "minute" to set your specifique time (with hour as 24 hours)    -->
     <!--          If you whish to run the tasks more than once per day, add as many input as desired.           -->
     <Task Name="Example 2" Frequency="Daily" Enabled="Yes">
-        <runAt hour=7 minute=0/>
-        <Script> 
-            <name="test"/>
-            <parameter="parameter1 'parameter 2' 'parameter 3 @ ici'"/>
-        </script>
-        <resultCode success=0 warning=1 error=2/>
-        <SuccessMessage="test script worked successfully"/>
-        <WarningMessage="test script raise a warning: please review the output"/>
-        <WarningError="Test script failed to run!"/>
-    </task>
+        <runAt Quarter='2' hour='13'/>
+        <Script name="test"
+                parameter="parameter1 'parameter 2' 'parameter 3 @ ici'"
+        />
+        <resultCode success='0' warning='1' error='2'
+                    SuccessMessage="test script worked successfully"
+                    WarningMessage="test script raise a warning: please review the output"
+                    ErrorMessage="Test script failed to run!"
+        />
+    </Task>
 
-    <!-- Weekly.: run every week. Use "hour" and "minute" to set your specifique time (with hour as 24 hours    -->
-    <!--          format and minute equals to 00, 15, 30 or 45). Use "Day" to specify the week day (1 is for    -->
-    <!--          monday). If you whish to run the tasks more than once per week, add as many input as desired. -->
+    <!-- Weekly.: run every week. Use "hour" and "minute" to set your specifique time (with hour as 24 hours)   -->
+    <!--          Use "Day" to specify the week day (1 is for monday). If you whish to run the tasks more than  -->
+    <!--          once per week, add as many input as desired.                                                  -->
     <Task Name="Example 3" Frequency="Weekly" Enabled="Yes">
-        <runAt day=7 hour=22 minute=30/>
-        <Script> 
-            <name="test"/>
-            <parameter="parameter1 'parameter 2' 'parameter 3 @ ici'"/>
-        </script>
-        <resultCode success=0 warning=1 error=2/>
-        <SuccessMessage="test script worked successfully"/>
-        <WarningMessage="test script raise a warning: please review the output"/>
-        <WarningError="Test script failed to run!"/>
-    </task>
+        <runAt quarter='2' hour='13' day='3'/>
+        <Script name="test"
+                parameter="parameter1 'parameter 2' 'parameter 3 @ ici'"
+        />
+        <resultCode success='0' warning='1' error='2'
+                    SuccessMessage="test script worked successfully"
+                    WarningMessage="test script raise a warning: please review the output"
+                    ErrorMessage="Test script failed to run!"
+        />
+    </Task>
 
     <!-- Monthly: run every month. Use "hour" and "minute" to set your specifique time (with hour as 24 hours   -->
     <!--          format and minute equals to 00, 15, 30 or 45). Use "Day" to specify the week day (1 is for    -->
     <!--          monday). Use Week to specify the week number in the month (1 to 4, only full week).           -->
     <!--          If you whish to run the tasks more than once per month, add as many input as desired.         -->
     <Task Name="Example 4" Frequency="Monthly" Enabled="Yes">
-        <runAt week=3 day=7 hour=22 minute=15/>
-        <Script> 
-            <name="test"/>
-            <parameter="parameter1 'parameter 2' 'parameter 3 @ ici'"/>
-        </script>
-        <resultCode success=0 warning=1 error=2/>
-        <SuccessMessage="test script worked successfully"/>
-        <WarningMessage="test script raise a warning: please review the output"/>
-        <WarningError="Test script failed to run!"/>
-    </task>
-</tasks>
+        <runAt quarter='1' hour='15' Day='3' week='5'/>
+        <Script name="test"
+                parameter="parameter1 'parameter 2' 'parameter 3 @ ici'"
+        />
+        <resultCode success='0' warning='1' error='2'
+                    SuccessMessage="test script worked successfully"
+                    WarningMessage="test script raise a warning: please review the output"
+                    ErrorMessage="Test script failed to run!"
+        />
+    </Task>
+	<Task Name="Example 4" Frequency="Monthly" Enabled="Yes">
+		<runAt quarter='2' hour='15' Day='3' week='5'/>
+		<Script name="test"
+                parameter="parameter1 'parameter 2' 'parameter 3 @ ici'"
+        />
+		<resultCode success='0' warning='1' error='2'
+                    SuccessMessage="test script worked successfully"
+                    WarningMessage="test script raise a warning: please review the output"
+                    ErrorMessage="Test script failed to run!"
+        />
+	</Task>
+	<Task Name="Example 4" Frequency="Monthly" Enabled="Yes">
+		<runAt quarter='3' hour='15' Day='3' week='5'/>
+		<Script name="test"
+                parameter="parameter1 'parameter 2' 'parameter 3 @ ici'"
+        />
+		<resultCode success='0' warning='1' error='2'
+                    SuccessMessage="test script worked successfully"
+                    WarningMessage="test script raise a warning: please review the output"
+                    ErrorMessage="Test script failed to run!"
+        />
+	</Task>
+	<Task Name="Example 4" Frequency="Monthly" Enabled="Yes">
+		<runAt quarter='4' hour='15' Day='3' week='5'/>
+		<Script name="test"
+                parameter="parameter1 'parameter 2' 'parameter 3 @ ici'"
+        />
+		<resultCode success='0' warning='1' error='2'
+                    SuccessMessage="test script worked successfully"
+                    WarningMessage="test script raise a warning: please review the output"
+                    ErrorMessage="Test script failed to run!"
+        />
+	</Task>
+</Tasks>
