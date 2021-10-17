@@ -1,8 +1,8 @@
 {
   "ExpandedNodes": [
     "",
-    "\\Configs"
+    "\\Configs",
+    "\\modules"
   ],
-  "SelectedNode": "\\sam.ps1",
   "PreviewInSolutionExplorer": false
 }

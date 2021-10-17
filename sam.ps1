@@ -171,6 +171,8 @@ $log += "`n  Hour Quartered number: $hourSgt"
 Write-EventLog -LogName Application -Source 'MAD_SAM' -EntryType Information -EventId 1 -Message $log
 
 # - Grab actions to perform
+$bTasks = $xmlSchedule.tasks.Task | Where-Object { $_.Frequency -eq "always"  } | Where-Object {      $_.runAt.always  -eq 'Begin'  }
+$eTasks = $xmlSchedule.tasks.Task | Where-Object { $_.Frequency -eq "always"  } | Where-Object {      $_.runAt.always  -eq 'End'    }
 $qTasks = $xmlSchedule.tasks.Task | Where-Object { $_.Frequency -eq "Hourly"  } | Where-Object {      $_.runAt.Quarter -eq $hourSgt }
 
 $dTasks = $xmlSchedule.tasks.Task | Where-Object { $_.Frequency -eq "daily"   } | Where-Object {      $_.runAt.Quarter -eq $hourSgt `
@@ -185,6 +187,57 @@ $mTasks = $xmlSchedule.tasks.Task | Where-Object { $_.Frequency -eq "Monthly" } 
                                                                                                  -and $_.RunAt.Day     -eq $runWday `
                                                                                                  -and $_.runAt.Week    -eq $runWeek }
 # - Create Job Sequence
+
+# - Run "always at begining" tasks
+Write-EventLog -LogName Application -Source 'MAD_SAM' -EntryType Information -EventId 4 -Message "Running Prerequesite tasks"
+forEach ($task in $bTasks)
+{
+    if ($task.Enabled -eq "yes")
+    {
+        #.Logging
+        $Log  =   "Starting new script sequence " + $task.Name
+        $Log += "`n`nFrequency: " + $task.Frequency
+        $Log += "`nEnabled: " + $task.Enabled
+
+        Write-EventLog -LogName Application -Source 'MAD_SAM' -EntryType Information -EventId 2 -Message $log
+        
+        #.Run job
+        $job = Start-Job -ScriptBlock $Block -Name CurrentJob -ArgumentList $task.Script.Name,$task.Script.Parameter,$ScriptLocation,$scriptModules
+
+        #.Waiting for script to end its run before running another one.
+        While ((Get-Job $job.Id).State -eq "Running")
+        {
+            Start-Sleep -Milliseconds 100
+        }
+
+        #.Grab result code, then kill the job
+        $result = Receive-Job $job.Id
+        Remove-Job $job.ID
+
+        #.Define output message
+        Switch ($result)
+        {
+            $Task.ResultCode.success { $resMsg = $Task.ResultCode.successMessage ; $EntryType = "SuccessAudit" }
+            $Task.ResultCode.warning { $resMsg = $Task.ResultCode.warningMessage ; $EntryType = "Warning" }
+            $Task.ResultCode.error   { $resMsg = $Task.ResultCode.errorMessage   ; $EntryType = "Error" }
+        }
+
+        #.Logging result
+        $Log  =   "Script " + $task.Name + " ended." 
+        $Log += "`n`nResult message: " + $resMsg
+
+        Write-EventLog -LogName Application -Source 'MAD_SAM' -EntryType $EntryType -EventId 2 -Message $log
+    }
+    Else 
+    {
+        #.Skip this one.
+        $Log  =   "Skipping script: " + $task.Name
+        $Log += "`n      Frequency: " + $task.Frequency
+        $Log += "`n        Enabled: " + $task.Enabled
+
+        Write-EventLog -LogName Application -Source 'MAD_SAM' -EntryType Information -EventId 3 -Message $log
+    }
+}
 
 # - Run quartely tasks
 Write-EventLog -LogName Application -Source 'MAD_SAM' -EntryType Information -EventId 4 -Message "Hour's Quarter Tasks starting"
@@ -215,16 +268,16 @@ forEach ($task  in $qTasks)
         #.Define output message
         Switch ($result)
         {
-            $Task.ResultCode.success { $resMsg = $Task.ResultCode.successMessage }
-            $Task.ResultCode.warning { $resMsg = $Task.ResultCode.warningMessage }
-            $Task.ResultCode.error   { $resMsg = $Task.ResultCode.errorMessage   }
+            $Task.ResultCode.success { $resMsg = $Task.ResultCode.successMessage ; $EntryType = "SuccessAudit" }
+            $Task.ResultCode.warning { $resMsg = $Task.ResultCode.warningMessage ; $EntryType = "Warning" }
+            $Task.ResultCode.error   { $resMsg = $Task.ResultCode.errorMessage   ; $EntryType = "Error" }
         }
 
         #.Logging result
         $Log  =   "Script " + $task.Name + " ended." 
         $Log += "`n`nResult message: " + $resMsg
 
-        Write-EventLog -LogName Application -Source 'MAD_SAM' -EntryType Information -EventId 2 -Message $log
+        Write-EventLog -LogName Application -Source 'MAD_SAM' -EntryType $EntryType -EventId 2 -Message $log
     }
     Else 
     {
@@ -266,16 +319,16 @@ forEach ($task  in $dTasks)
         #.Define output message
         Switch ($result)
         {
-            $Task.ResultCode.success { $resMsg = $Task.ResultCode.successMessage }
-            $Task.ResultCode.warning { $resMsg = $Task.ResultCode.warningMessage }
-            $Task.ResultCode.error   { $resMsg = $Task.ResultCode.errorMessage   }
+            $Task.ResultCode.success { $resMsg = $Task.ResultCode.successMessage ; $EntryType = "SuccessAudit" }
+            $Task.ResultCode.warning { $resMsg = $Task.ResultCode.warningMessage ; $EntryType = "Warning" }
+            $Task.ResultCode.error   { $resMsg = $Task.ResultCode.errorMessage   ; $EntryType = "Error" }
         }
 
         #.Logging result
         $Log  =   "Script " + $task.Name + " ended." 
         $Log += "`n`nResult message: " + $resMsg
 
-        Write-EventLog -LogName Application -Source 'MAD_SAM' -EntryType Information -EventId 2 -Message $log
+        Write-EventLog -LogName Application -Source 'MAD_SAM' -EntryType $EntryType -EventId 2 -Message $log
     }
     Else 
     {
@@ -317,16 +370,16 @@ forEach ($task  in $wTasks)
         #.Define output message
         Switch ($result)
         {
-            $Task.ResultCode.success { $resMsg = $Task.ResultCode.successMessage }
-            $Task.ResultCode.warning { $resMsg = $Task.ResultCode.warningMessage }
-            $Task.ResultCode.error   { $resMsg = $Task.ResultCode.errorMessage   }
+            $Task.ResultCode.success { $resMsg = $Task.ResultCode.successMessage ; $EntryType = "SuccessAudit" }
+            $Task.ResultCode.warning { $resMsg = $Task.ResultCode.warningMessage ; $EntryType = "Warning" }
+            $Task.ResultCode.error   { $resMsg = $Task.ResultCode.errorMessage   ; $EntryType = "Error" }
         }
 
         #.Logging result
         $Log  =   "Script " + $task.Name + " ended." 
         $Log += "`n`nResult message: " + $resMsg
 
-        Write-EventLog -LogName Application -Source 'MAD_SAM' -EntryType Information -EventId 2 -Message $log
+        Write-EventLog -LogName Application -Source 'MAD_SAM' -EntryType $EntryType -EventId 2 -Message $log
     }
     Else 
     {
@@ -368,16 +421,16 @@ forEach ($task  in $mTasks)
         #.Define output message
         Switch ($result)
         {
-            $Task.ResultCode.success { $resMsg = $Task.ResultCode.successMessage }
-            $Task.ResultCode.warning { $resMsg = $Task.ResultCode.warningMessage }
-            $Task.ResultCode.error   { $resMsg = $Task.ResultCode.errorMessage   }
+            $Task.ResultCode.success { $resMsg = $Task.ResultCode.successMessage ; $EntryType = "SuccessAudit" }
+            $Task.ResultCode.warning { $resMsg = $Task.ResultCode.warningMessage ; $EntryType = "Warning" }
+            $Task.ResultCode.error   { $resMsg = $Task.ResultCode.errorMessage   ; $EntryType = "Error" }
         }
 
         #.Logging result
         $Log  =   "Script " + $task.Name + " ended." 
         $Log += "`n`nResult message: " + $resMsg
 
-        Write-EventLog -LogName Application -Source 'MAD_SAM' -EntryType Information -EventId 2 -Message $log
+        Write-EventLog -LogName Application -Source 'MAD_SAM' -EntryType $EntryType -EventId 2 -Message $log
     }
     Else 
     {
@@ -389,6 +442,58 @@ forEach ($task  in $mTasks)
         Write-EventLog -LogName Application -Source 'MAD_SAM' -EntryType Information -EventId 3 -Message $log
     }
     Write-EventLog -LogName Application -Source 'MAD_SAM' -EntryType Information -EventId 5 -Message "All run done"
+}
+
+# - Run "always at end" tasks
+Write-EventLog -LogName Application -Source 'MAD_SAM' -EntryType Information -EventId 4 -Message "Running cleanup tasks"
+start-Sleep -s 1
+forEach ($task in $eTasks)
+{
+    if ($task.Enabled -eq "yes")
+    {
+        #.Logging
+        $Log  =   "Starting new script sequence " + $task.Name
+        $Log += "`n`nFrequency: " + $task.Frequency
+        $Log += "`nEnabled: " + $task.Enabled
+
+        Write-EventLog -LogName Application -Source 'MAD_SAM' -EntryType Information -EventId 2 -Message $log
+        
+        #.Run job
+        $job = Start-Job -ScriptBlock $Block -Name CurrentJob -ArgumentList $task.Script.Name,$task.Script.Parameter,$ScriptLocation,$scriptModules
+
+        #.Waiting for script to end its run before running another one.
+        While ((Get-Job $job.Id).State -eq "Running")
+        {
+            Start-Sleep -Milliseconds 100
+        }
+
+        #.Grab result code, then kill the job
+        $result = Receive-Job $job.Id
+        Remove-Job $job.ID
+
+        #.Define output message
+        Switch ($result)
+        {
+            $Task.ResultCode.success { $resMsg = $Task.ResultCode.successMessage ; $EntryType = "SuccessAudit" }
+            $Task.ResultCode.warning { $resMsg = $Task.ResultCode.warningMessage ; $EntryType = "Warning" }
+            $Task.ResultCode.error   { $resMsg = $Task.ResultCode.errorMessage   ; $EntryType = "Error" }
+        }
+
+        #.Logging result
+        $Log  =   "Script " + $task.Name + " ended." 
+        $Log += "`n`nResult message: " + $resMsg
+
+        Write-EventLog -LogName Application -Source 'MAD_SAM' -EntryType $EntryType -EventId 2 -Message $log
+    }
+    Else 
+    {
+        #.Skip this one.
+        $Log  =   "Skipping script: " + $task.Name
+        $Log += "`n      Frequency: " + $task.Frequency
+        $Log += "`n        Enabled: " + $task.Enabled
+
+        Write-EventLog -LogName Application -Source 'MAD_SAM' -EntryType Information -EventId 3 -Message $log
+    }
 }
 Write-EventLog -LogName Application -Source 'MAD_SAM' -EntryType Information -EventId 0 -Message "Script's over"
 
