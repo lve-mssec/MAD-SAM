@@ -132,7 +132,7 @@ Function Export-HtmlFunctionReport
 		This function ease the html report building by formating all of them the same way.
 
 		.PARAMETER FunctionData
-		Array. Should contains the function name and the function description (call with @{scriptName="";scriptDesc=""}).
+		A string to resume the table content.
 
 		.PARAMETER ReportData
 		Array. Shoud contains a custom table as for a csv export. The script will adapt it with a proper formating.
@@ -146,6 +146,7 @@ Function Export-HtmlFunctionReport
 
 	Param(
 		[Parameter(mandatory=$true)]
+		[String]
 		$FunctionData,
 
 		[Parameter(mandatory=$true)]
@@ -158,15 +159,16 @@ Function Export-HtmlFunctionReport
 	#.CSS Style
 	$Header  = '<Style>'
 	$Header += '  h1    { font-family: Arial, Helvetica, sans-serif; color: #e68a00; font-size: 28px; }'
-	$Header += '  h2    { font-family: Arial, Helvetica, sans-serif; color: #000099; font-size: 16px; }'
+	$Header += '  h2    { font-family: Arial, Helvetica, sans-serif; color: #1E90FF; font-size: 16px; }'
+	$Header += '  h3    { font-family: Arial, Helvetica, sans-serif; color: #FF7F50; font-size: 12px; }'
 	$Header += '  table { font-family: Arial, Helvetica, sans-serif; font-size: 12px; border: 0px; }'
-	$Header += '  td    { Padding: 4px; Margin: 0px; border: 0; } '
-	$Header += '  th    { background: #395870; background: linear-gradiant(#49708f, #293f50); color: #fff; font-size: 11px; text-transform: uppdercase; padding: 10px 15px; vertical-align: middle; }'
+	$Header += '  td    { Padding: 4px; Margin: 0px; border: 0; background: #e8e8e8;} '
+	$Header += '  th    { background: #395870; background: linear-gradiant(#49708f, #293f50); color: #fff; font-size: 11px; text-transform: uppdercase; padding: 4px 4px; text-align: left; }'
 	$Header += '</Style>'
 
 	#.Prepending data
-	$PreContent  = "<h1>" + $FunctionData.ScriptName + "</h1>"
-	$PreContent += "<h2>" + $FunctionData.ScriptDesc + "</h2>"
+	$PreContent += "<h2>$FunctionData</h2>"
+	$PreContent += "<h3>Date d'exécution : "  + (Get-Date -format "dd/MM/yyyy - HH:mm:ss") + "</h3>"
 
 	#.Preparing the html report
 	$reportHtml = $ReportData | ConvertTo-Html -Fragment -PreContent $PreContent -Property $SortData
@@ -177,4 +179,5 @@ Function Export-HtmlFunctionReport
 	#.reporting result to caller
 	return $Report
 }
+
 Export-ModuleMember -Function *
