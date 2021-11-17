@@ -62,11 +62,11 @@ $Block = {
         #-Module loading...
         if ($is2k8r2)
         {
-            $null = $mods | forEach-Object { Import-Module $_.fullName }
+            $null = $mods | forEach-Object { Import-Module $_.fullName -DisableNameChecking }
         } 
         else 
         {
-            $null = $mods | forEach-Object { Import-Module $_ }
+            $null = $mods | forEach-Object { Import-Module $_ -DisableNameChecking }
         }
     }
     Catch 
