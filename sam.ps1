@@ -148,6 +148,7 @@ Write-EventLog -LogName Application -Source 'MAD_SAM' -EntryType Information -Ev
 # - Fork from here!
 # - Loading the XML tasks data file
 $xmlSchedule = [xml](Get-Content .\Configs\Schedules.xml)
+$xmlConfig   = [xml](Get-Content .\Configs\Configuration.xml)
 
 # - Define run specific case : Week in current month, Day, Hour, Minute.
 # - WeekDay will be returned as a numrical value (1=Monday, 7=Sunday)
@@ -186,7 +187,8 @@ $mTasks = $xmlSchedule.tasks.Task | Where-Object { $_.Frequency -eq "Monthly" } 
                                                                                                  -and $_.runAt.hour    -eq $runHour `
                                                                                                  -and $_.RunAt.Day     -eq $runWday `
                                                                                                  -and $_.runAt.Week    -eq $runWeek }
-# - Create Job Sequence
+# - Create Job Sequence hrml result variable
+$htmlReport = @("<header><h1>MAD SAM (Maintening AD - System for Automatic Maintenance)</h1><p>Loic VEIRMAN (MSSEC) - Version 01.00</p></header>")
 
 # - Run "always at begining" tasks
 Write-EventLog -LogName Application -Source 'MAD_SAM' -EntryType Information -EventId 4 -Message "Running Prerequesite tasks"
@@ -222,11 +224,25 @@ forEach ($task in $bTasks)
             $Task.ResultCode.error   { $resMsg = $Task.ResultCode.errorMessage   ; $EntryType = "Error" }
         }
 
+        #.To troubleshot
+        if (-not($EntryType)) 
+        {
+            $EntryType = "information"
+            $resMsg    = "Failed to retrieve task result data!"
+        }
+
         #.Logging result
         $Log  =   "Script " + $task.Name + " ended." 
         $Log += "`n`nResult message: " + $resMsg
 
         Write-EventLog -LogName Application -Source 'MAD_SAM' -EntryType $EntryType -EventId 2 -Message $log
+
+        #.Adding result to final html file
+        $htmlTarget = [String]$task.Script.Name + ".html"
+        if (Test-Path .\Results\$htmlTarget)
+        {
+            $htmlReport += Get-Content .\Results\$htmlTarget
+        }
     }
     Else 
     {
@@ -278,6 +294,13 @@ forEach ($task  in $qTasks)
         $Log += "`n`nResult message: " + $resMsg
 
         Write-EventLog -LogName Application -Source 'MAD_SAM' -EntryType $EntryType -EventId 2 -Message $log
+
+        #.Adding result to final html file
+        $htmlTarget = [String]$task.Script.Name + ".html"
+        if (Test-Path .\Results\$htmlTarget)
+        {
+            $htmlReport += Get-Content .\Results\$htmlTarget
+        }
     }
     Else 
     {
@@ -329,6 +352,13 @@ forEach ($task  in $dTasks)
         $Log += "`n`nResult message: " + $resMsg
 
         Write-EventLog -LogName Application -Source 'MAD_SAM' -EntryType $EntryType -EventId 2 -Message $log
+        
+        #.Adding result to final html file
+        $htmlTarget = [String]$task.Script.Name + ".html"
+        if (Test-Path .\Results\$htmlTarget)
+        {
+            $htmlReport += Get-Content .\Results\$htmlTarget
+        }
     }
     Else 
     {
@@ -380,6 +410,13 @@ forEach ($task  in $wTasks)
         $Log += "`n`nResult message: " + $resMsg
 
         Write-EventLog -LogName Application -Source 'MAD_SAM' -EntryType $EntryType -EventId 2 -Message $log
+        
+        #.Adding result to final html file
+        $htmlTarget = [String]$task.Script.Name + ".html"
+        if (Test-Path .\Results\$htmlTarget)
+        {
+            $htmlReport += Get-Content .\Results\$htmlTarget
+        }
     }
     Else 
     {
@@ -431,6 +468,13 @@ forEach ($task  in $mTasks)
         $Log += "`n`nResult message: " + $resMsg
 
         Write-EventLog -LogName Application -Source 'MAD_SAM' -EntryType $EntryType -EventId 2 -Message $log
+        
+        #.Adding result to final html file
+        $htmlTarget = [String]$task.Script.Name + ".html"
+        if (Test-Path .\Results\$htmlTarget)
+        {
+            $htmlReport += Get-Content .\Results\$htmlTarget
+        }
     }
     Else 
     {
@@ -484,6 +528,13 @@ forEach ($task in $eTasks)
         $Log += "`n`nResult message: " + $resMsg
 
         Write-EventLog -LogName Application -Source 'MAD_SAM' -EntryType $EntryType -EventId 2 -Message $log
+        
+        #.Adding result to final html file
+        $htmlTarget = [String]$task.Script.Name + ".html"
+        if (Test-Path .\Results\$htmlTarget)
+        {
+            $htmlReport += Get-Content .\Results\$htmlTarget
+        }
     }
     Else 
     {
@@ -497,7 +548,42 @@ forEach ($task in $eTasks)
 }
 Write-EventLog -LogName Application -Source 'MAD_SAM' -EntryType Information -EventId 0 -Message "Script's over"
 
-# - Import module files. If a module fail to load, the script will over (code 998)
+# - Export to HTML file final report
+$ReportName = "Rapport du " + (Get-Date -Format "dd MMM yyyy - hh\hmm") + ".html"
+$htmlReport | Out-File .\Results\$ReportName -Encoding utf8
+
+# - Send mail report
+Write-EventLog -LogName Application -Source 'MAD_SAM' -EntryType Information -EventId 1 -Message ("Sending mail report")
+
+$password = ConvertTo-SecureString ([string]($xmlConfig.settings.SmtpPassword)) -AsPlainText -Force
+$smtpCred = New-Object System.Management.Automation.PSCredential ($xmlConfig.settings.SmtpLogin, $password)
+
+if ($xmlConfig.settings.SmtpLogin -eq 'no')
+{
+    $UseSsl   = $false
+}
+Else
+{
+    $UseSsl   = $True
+}
+
+$recipients = @()
+
+Foreach ($recipient in $xmlConfig.settings.SmtpRecipient)
+{
+    $recipients += $recipient
+}
+
+Send-MailMessage -Body "Bonjour,`nVeuillez trouver ci-joint le résultat de l'exécution de la tâche planifiée." `
+                 -Attachments   .\Results\$ReportName `
+                 -From $xmlConfig.settings.SmtpSender `
+                 -SmtpServer $xmlConfig.Settings.SmtpServer `
+                 -Subject "MAD SAM - Rapport d'Execution" `
+                 -Port $xmlConfig.settings.SmtpPort `
+                 -Credential $smtpCred `
+                 -To $Recipients
+
+# - Remove module files. 
 forEach ($mod in $LoadMods)
 {
     Try { 

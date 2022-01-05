@@ -2,4 +2,12 @@
 <!--Configuration file for MAD SAM-->
 <Settings>
 	<AccountName>gMSA_MAD$</AccountName>
+  <SmtpServer>172.16.22.12</SmtpServer>
+  <SmtpPort>25</SmtpPort>
+  <SmtpSsl>Yes</SmtpSsl>
+  <SmtpSender>alertes.securid@monitor-mssec.ovh</SmtpSender>
+  <SmtpLogin>backbone\alertes.Securid</SmtpLogin>
+  <SmtpPassword>8Z8C"LmeA~azhSi'owlz</SmtpPassword>
+  <SmtpRecipient>alertes.wsus@monitor-mssec.ovh</SmtpRecipient>
+  <SmtpRecipient>alertes.netwrix@monitor-mssec.ovh</SmtpRecipient>
 </Settings>
