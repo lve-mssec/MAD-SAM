@@ -1,62 +1,354 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Tasks>
-    <!-- Hourly.: run every hour. Use "minute" to set at which run it should start (h:00, h:15, h:30, h:45).    -->
+    <!-- Start..: run the following tasks at the begining of any run                                            -->
+	<Task Name="Grant Privileges" Frequency="always" Enabled="Yes">
+		<runAt Always='Begin'/>
+		<Script name="Grant-Scheduler" 
+            parameter="G-S_Delegation_MadSam" />
+		<resultCode success='0' warning='1' error='2'
+                    SuccessMessage="Sucessfully granted scheduler account"
+                    WarningMessage="N/A"
+                    ErrorMessage="Failed to grant Scheduler Account!"
+        />
+	</Task>
+	
+	<!-- End....: run the following tasks at the end of any run                                                 -->
+	<Task Name="Ungrant Privileges" Frequency="always" Enabled="Yes">
+		<runAt Always='End'/>
+		<Script name="Ungrant-Scheduler"
+            parameter="G-S_Delegation_MadSam" />
+		<resultCode success='0' warning='1' error='2'
+                SuccessMessage="Successfully ungranted Scheduler Account"
+                WarningMessage="N/A"
+                ErrorMessage="Failed to ungrant Scheduler Account!" />
+	</Task>
+
+	  <!-- Hourly.: run every hour. Use "Quarter" to set at which quarter hour it should start (1 is between 00   -->
+    <!-- and 15, 2 between 15 and 30, 3 between 30 and 45 and 4 is between 45 and 00).                          -->
     <!--          If you whish to run the tasks more than once per hour, add as many input as desired.          -->
-    <Task Name="Example 1" Frequency="Hourly" Enabled="Yes">
-        <runAt minute=15/>
-        <Script> 
-            <name="test"/>
-            <parameter="parameter1 'parameter 2' 'parameter 3 @ ici'"/>
-        </script>
-        <resultCode success=0 warning=1 error=2/>
-        <SuccessMessage="test script worked successfully"/>
-        <WarningMessage="test script raise a warning: please review the output"/>
-        <WarningError="Test script failed to run!"/>
-    </task>
 
-    <!-- Daily..: run every day. Use "hour" and "minute" to set your specifique time (with hour as 24 hours     -->
-    <!--          format and minute equals to 00, 15, 30 or 45).                                                -->
+
+    <!-- Daily..: run every day. Use "hour" and "minute" to set your specifique time (with hour as 24 hours)    -->
     <!--          If you whish to run the tasks more than once per day, add as many input as desired.           -->
-    <Task Name="Example 2" Frequency="Daily" Enabled="Yes">
-        <runAt hour=7 minute=0/>
-        <Script> 
-            <name="test"/>
-            <parameter="parameter1 'parameter 2' 'parameter 3 @ ici'"/>
-        </script>
-        <resultCode success=0 warning=1 error=2/>
-        <SuccessMessage="test script worked successfully"/>
-        <WarningMessage="test script raise a warning: please review the output"/>
-        <WarningError="Test script failed to run!"/>
-    </task>
+    <Task Name="Search for Active User Accounts that remains enable but has no activity for the last 90 days" Frequency="Daily" Enabled="Yes">
+      <runAt Quarter='3' hour='15'/>
+      <Script name="Search-AccountsWithNoActivity" parameter="90" />
+      <resultCode success='0' warning='1' error='2'
+                  SuccessMessage="Script worked successfully"
+                  WarningMessage="Script raised a warning: please review the output"
+                  ErrorMessage  ="Script failed to run!" />
+    </Task>
 
-    <!-- Weekly.: run every week. Use "hour" and "minute" to set your specifique time (with hour as 24 hours    -->
-    <!--          format and minute equals to 00, 15, 30 or 45). Use "Day" to specify the week day (1 is for    -->
-    <!--          monday). If you whish to run the tasks more than once per week, add as many input as desired. -->
-    <Task Name="Example 3" Frequency="Weekly" Enabled="Yes">
-        <runAt day=7 hour=22 minute=30/>
-        <Script> 
-            <name="test"/>
-            <parameter="parameter1 'parameter 2' 'parameter 3 @ ici'"/>
-        </script>
-        <resultCode success=0 warning=1 error=2/>
-        <SuccessMessage="test script worked successfully"/>
-        <WarningMessage="test script raise a warning: please review the output"/>
-        <WarningError="Test script failed to run!"/>
-    </task>
+    <Task Name="Search for account with a password not changed for a long period" Frequency="Daily" Enabled="Yes">
+      <runAt Quarter='3' hour='15'/>
+      <Script name="Search-AccountsWithTooOldPassword" parameter="180" />
+      <resultCode success='0' warning='1' error='2'
+                  SuccessMessage="Script worked successfully"
+                  WarningMessage="Script raised a warning: please review the output"
+                  ErrorMessage  ="Script failed to run!" />
+    </Task>
 
-    <!-- Monthly: run every month. Use "hour" and "minute" to set your specifique time (with hour as 24 hours   -->
-    <!--          format and minute equals to 00, 15, 30 or 45). Use "Day" to specify the week day (1 is for    -->
-    <!--          monday). Use Week to specify the week number in the month (1 to 4, only full week).           -->
-    <!--          If you whish to run the tasks more than once per month, add as many input as desired.         -->
-    <Task Name="Example 4" Frequency="Monthly" Enabled="Yes">
-        <runAt week=3 day=7 hour=22 minute=15/>
-        <Script> 
-            <name="test"/>
-            <parameter="parameter1 'parameter 2' 'parameter 3 @ ici'"/>
-        </script>
-        <resultCode success=0 warning=1 error=2/>
-        <SuccessMessage="test script worked successfully"/>
-        <WarningMessage="test script raise a warning: please review the output"/>
-        <WarningError="Test script failed to run!"/>
-    </task>
-</tasks>
+    <Task Name="Search for account with the attribute 'password never expires' enabled" Frequency="Daily" Enabled="Yes">
+      <runAt Quarter='3' hour='15'/>
+      <Script name="Search-AccountsWithPasswordNeverExpires" parameter="" />
+      <resultCode success='0' warning='1' error='2'
+                  SuccessMessage="Script worked successfully"
+                  WarningMessage="Script raised a warning: please review the output"
+                  ErrorMessage  ="Script failed to run!" />
+   </Task>
+
+  <Task Name="Search for account with the attribute 'password not requiered' enabled" Frequency="Daily" Enabled="Yes">
+    <runAt Quarter='3' hour='15'/>
+    <Script name="Search-AccountsWithPasswordNotRequiered" parameter="" />
+    <resultCode success='0' warning='1' error='2'
+                SuccessMessage="Script worked successfully"
+                WarningMessage="Script raised a warning: please review the output"
+                ErrorMessage  ="Script failed to run!" />
+  </Task>
+
+  <Task Name="Search for illegitimate members of the group 'Enterprise Administrators'" Frequency="Daily" Enabled="Yes">
+    <runAt Quarter='3' hour='15'/>
+    <Script name="Export-SensibleGroupMembers" parameter="%SID%-519" />
+    <resultCode success='0' warning='1' error='2'
+                SuccessMessage="Script worked successfully"
+                WarningMessage="Script raised a warning: please review the output"
+                ErrorMessage  ="Script failed to run!" />
+  </Task>
+
+  <Task Name="Search for illegitimate members of the group 'Domain Admins'" Frequency="Daily" Enabled="Yes">
+    <runAt Quarter='3' hour='15'/>
+    <Script name="Export-SensibleGroupMembers" parameter="%SID%-512" />
+    <resultCode success='0' warning='1' error='2'
+                SuccessMessage="Script worked successfully"
+                WarningMessage="Script raised a warning: please review the output"
+                ErrorMessage  ="Script failed to run!" />
+  </Task>
+
+  <Task Name="Search for illegitimate members of the group 'builtin\Administrators'" Frequency="Daily" Enabled="Yes">
+    <runAt Quarter='3' hour='15'/>
+    <Script name="Export-SensibleGroupMembers" parameter="S-1-5-32-544" />
+    <resultCode success='0' warning='1' error='2'
+                SuccessMessage="Script worked successfully"
+                WarningMessage="Script raised a warning: please review the output"
+                ErrorMessage  ="Script failed to run!" />
+  </Task>
+
+  <Task Name="Search for account with Reversible Password" Frequency="Daily" Enabled="Yes">
+    <runAt Quarter='3' hour='15'/>
+    <Script name="Search-AccountsWithReversiblePassword" parameter="" />
+    <resultCode success='0' warning='1' error='2'
+                SuccessMessage="Script worked successfully"
+                WarningMessage="Script raised a warning: please review the output"
+                ErrorMessage  ="Script failed to run!" />
+  </Task>
+
+  <Task Name="Search for account with Kerberos Pre-Authorization not enabled" Frequency="Daily" Enabled="Yes">
+    <runAt Quarter='3' hour='15'/>
+    <Script name="Search-AccountsWithKerberosPreAuthDisabled" parameter="" />
+    <resultCode success='0' warning='1' error='2'
+                SuccessMessage="Script worked successfully"
+                WarningMessage="Script raised a warning: please review the output"
+                ErrorMessage  ="Script failed to run!" />
+  </Task>
+
+  <Task Name="Search for computer accounts with parameter passwordNeverExpires set to True" Frequency="Daily" Enabled="Yes">
+    <runAt Quarter='3' hour='15'/>
+    <Script name="Search-ComputersWithPasswordNeverExpires" parameter="" />
+    <resultCode success='0' warning='1' error='2'
+                SuccessMessage="Script worked successfully"
+                WarningMessage="Script raised a warning: please review the output"
+                ErrorMessage  ="Script failed to run!" />
+  </Task>
+
+  <Task Name="Search for computer accounts trusted for unconstrained delegation" Frequency="Daily" Enabled="Yes">
+    <runAt Quarter='3' hour='15'/>
+    <Script name="Search-ComputerWithUnconstrainedDelegation" parameter="" />
+    <resultCode success='0' warning='1' error='2'
+                SuccessMessage="Script worked successfully"
+                WarningMessage="Script raised a warning: please review the output"
+                ErrorMessage  ="Script failed to run!" />
+  </Task>
+
+  <Task Name="Search for Group Policies with a wrong owner (should be domain admins)" Frequency="Daily" Enabled="Yes">
+    <runAt Quarter='3' hour='15'/>
+    <Script name="Search-GroupPolicyBadOwnership" parameter="" />
+    <resultCode success='0' warning='1' error='2'
+                SuccessMessage="Script worked successfully"
+                WarningMessage="Script raised a warning: please review the output"
+                ErrorMessage  ="Script failed to run!" />
+  </Task>
+  
+  <!-- Weekly.: run every week. Use "hour" and "minute" to set your specifique time (with hour as 24 hours)   -->
+  <!--          Use "Day" to specify the week day (1 is for monday). If you whish to run the tasks more than  -->
+  <!--          once per week, add as many input as desired.                                                  -->
+  <Task Name="Search for account with a wrong primary group ID" Frequency="Weekly" Enabled="Yes">
+    <runAt quarter='3' hour='15' day='3'/>
+    <Script name="Search-AccountWithBadPrimaryGroupID" parameter="" />
+    <resultCode success='0' warning='1' error='2'
+                SuccessMessage="test script worked successfully"
+                WarningMessage="test script raise a warning: please review the output"
+                ErrorMessage="Test script failed to run!" />
+  </Task>
+
+  <Task Name="Search for illegitimate members of the group 'Schema Admins'" Frequency="Weekly" Enabled="Yes">
+    <runAt quarter='3' hour='15' day='3'/>
+    <Script name="Export-SensibleGroupMembers" parameter="%SID%-518" />
+    <resultCode success='0' warning='1' error='2'
+                SuccessMessage="test script worked successfully"
+                WarningMessage="test script raise a warning: please review the output"
+                ErrorMessage="Test script failed to run!" />
+  </Task>
+
+  <Task Name="Ensure all accounts with the attribute 'adminCount' set to 1 are members of the group 'protected users'" Frequency="Weekly" Enabled="Yes">
+    <runAt quarter='3' hour='15' day='3'/>
+    <Script name="Search-AdminAccountNotMEmberOfProtectedUsers" parameter="" />
+    <resultCode success='0' warning='1' error='2'
+                SuccessMessage="test script worked successfully"
+                WarningMessage="test script raise a warning: please review the output"
+                ErrorMessage="Test script failed to run!" />
+  </Task>
+
+  <Task Name="Ensure all accounts with the attribute 'adminCount' set to 1 are set with the attribute 'account is sensible'" Frequency="Weekly" Enabled="Yes">
+    <runAt quarter='3' hour='15' day='3'/>
+    <Script name="Search-AdminAccountNotDefinedAsSensible" parameter="" />
+    <resultCode success='0' warning='1' error='2'
+                SuccessMessage="test script worked successfully"
+                WarningMessage="test script raise a warning: please review the output"
+                ErrorMessage="Test script failed to run!" />
+  </Task>
+
+  <Task Name="Search for account with DES in Kerberos Authentication enabled" Frequency="Weekly" Enabled="Yes">
+    <runAt quarter='3' hour='15' day='3'/>
+    <Script name="Search-AccountsWithDESenabled" parameter="" />
+    <resultCode success='0' warning='1' error='2'
+                SuccessMessage="test script worked successfully"
+                WarningMessage="test script raise a warning: please review the output"
+                ErrorMessage="Test script failed to run!" />
+  </Task>
+
+  <Task Name="Search for account Trusted for unconstrained delegation (TrustedForDelegation)" Frequency="Weekly" Enabled="Yes">
+    <runAt quarter='3' hour='15' day='3'/>
+    <Script name="Search-AccountsTrustedForUnconstrainedDelegation" parameter="" />
+    <resultCode success='0' warning='1' error='2'
+                SuccessMessage="test script worked successfully"
+                WarningMessage="test script raise a warning: please review the output"
+                ErrorMessage="Test script failed to run!" />
+  </Task>
+
+  <Task Name="Search for account using a Service Principal Name (SPN)" Frequency="Weekly" Enabled="Yes">
+    <runAt quarter='3' hour='15' day='3'/>
+    <Script name="Search-AccountsWithServicePrincipalName" parameter="" />
+    <resultCode success='0' warning='1' error='2'
+                SuccessMessage="test script worked successfully"
+                WarningMessage="test script raise a warning: please review the output"
+                ErrorMessage="Test script failed to run!" />
+  </Task>
+
+  <Task Name="Search for illegitimate members of the group 'Group Policy Creator Owners'" Frequency="Weekly" Enabled="Yes">
+    <runAt quarter='3' hour='15' day='3'/>
+    <Script name="Export-SensibleGroupMembers" parameter="%SID%-520" />
+    <resultCode success='0' warning='1' error='2'
+                SuccessMessage="test script worked successfully"
+                WarningMessage="test script raise a warning: please review the output"
+                ErrorMessage="Test script failed to run!" />
+  </Task>
+
+  <Task Name="Search for illegitimate members of the group 'Pre-Windows 2000 compatible Access'" Frequency="Weekly" Enabled="Yes">
+    <runAt quarter='3' hour='15' day='3'/>
+    <Script name="Export-SensibleGroupMembers" parameter=" S-1-5-32-554" />
+    <resultCode success='0' warning='1' error='2'
+                SuccessMessage="test script worked successfully"
+                WarningMessage="test script raise a warning: please review the output"
+                ErrorMessage="Test script failed to run!" />
+  </Task>
+  
+  <!-- Monthly: run every month. Use "hour" and "minute" to set your specifique time (with hour as 24 hours   -->
+  <!--          format and minute equals to 00, 15, 30 or 45). Use "Day" to specify the week day (1 is for    -->
+  <!--          monday). Use Week to specify the week number in the month (1 to 4, only full week).           -->
+  <!--          If you whish to run the tasks more than once per month, add as many input as desired.         -->
+  <Task Name="Ensure that the Kerberos Account (KRBTGT) is cycled every 30 days" Frequency="Monthly" Enabled="Yes">
+    <runAt quarter='3' hour='15' Day='3' week='4'/>
+    <Script name="Test-KerberosSecretLifespan" parameter="30" />
+    <resultCode success='0' warning='1' error='2'
+                SuccessMessage="test script worked successfully"
+                WarningMessage="test script raise a warning: please review the output"
+                ErrorMessage="Test script failed to run!" />
+  </Task>
+
+  <Task Name="Search for illegitimate members of the groups named 'Network Configuration operators'" Frequency="Monthly" Enabled="Yes">
+    <runAt quarter='3' hour='15' Day='3' week='4'/>
+    <Script name="Export-SensibleGroupMembers" parameter="S-1-5-32-556" />
+    <resultCode success='0' warning='1' error='2'
+                SuccessMessage="test script worked successfully"
+                WarningMessage="test script raise a warning: please review the output"
+                ErrorMessage="Test script failed to run!" />
+  </Task>
+
+  <Task Name="Search for illegitimate members of the groups named 'Cryptographic Operators'" Frequency="Monthly" Enabled="Yes">
+    <runAt quarter='3' hour='15' Day='3' week='4'/>
+    <Script name="Export-SensibleGroupMembers" parameter="S-1-5-32-569" />
+    <resultCode success='0' warning='1' error='2'
+                SuccessMessage="test script worked successfully"
+                WarningMessage="test script raise a warning: please review the output"
+                ErrorMessage="Test script failed to run!" />
+  </Task>
+
+  <Task Name="Search for illegitimate members of the groups named 'Access Control Assistance Operators'" Frequency="Monthly" Enabled="Yes">
+    <runAt quarter='3' hour='15' Day='3' week='4'/>
+    <Script name="Export-SensibleGroupMembers" parameter="S-1-5-32-579" />
+    <resultCode success='0' warning='1' error='2'
+                SuccessMessage="test script worked successfully"
+                WarningMessage="test script raise a warning: please review the output"
+                ErrorMessage="Test script failed to run!" />
+  </Task>
+
+  <Task Name="Search for illegitimate members of the groups named 'Print Operators'" Frequency="Monthly" Enabled="Yes">
+    <runAt quarter='3' hour='15' Day='3' week='4'/>
+    <Script name="Export-SensibleGroupMembers" parameter="S-1-5-32-550" />
+    <resultCode success='0' warning='1' error='2'
+                SuccessMessage="test script worked successfully"
+                WarningMessage="test script raise a warning: please review the output"
+                ErrorMessage="Test script failed to run!" />
+  </Task>
+
+  <Task Name="Search for illegitimate members of the groups named 'Server Operators'" Frequency="Monthly" Enabled="Yes">
+    <runAt quarter='3' hour='15' Day='3' week='4'/>
+    <Script name="Export-SensibleGroupMembers" parameter="S-1-5-32-549" />
+    <resultCode success='0' warning='1' error='2'
+                SuccessMessage="test script worked successfully"
+                WarningMessage="test script raise a warning: please review the output"
+                ErrorMessage="Test script failed to run!" />
+  </Task>
+
+  <Task Name="Search for illegitimate members of the groups named 'Backup Operators'" Frequency="Monthly" Enabled="Yes">
+    <runAt quarter='3' hour='15' Day='3' week='4'/>
+    <Script name="Export-SensibleGroupMembers" parameter="S-1-5-32-551" />
+    <resultCode success='0' warning='1' error='2'
+                SuccessMessage="test script worked successfully"
+                WarningMessage="test script raise a warning: please review the output"
+                ErrorMessage="Test script failed to run!" />
+  </Task>
+
+  <Task Name="Search for illegitimate members of the groups named 'Account Operators'" Frequency="Monthly" Enabled="Yes">
+    <runAt quarter='3' hour='15' Day='3' week='4'/>
+    <Script name="Export-SensibleGroupMembers" parameter="S-1-5-32-548" />
+    <resultCode success='0' warning='1' error='2'
+                SuccessMessage="test script worked successfully"
+                WarningMessage="test script raise a warning: please review the output"
+                ErrorMessage="Test script failed to run!" />
+  </Task>
+
+  <Task Name="Search for illegitimate members of the group 'DnsAdmins'" Frequency="Monthly" Enabled="Yes">
+    <runAt quarter='3' hour='15' Day='3' week='4'/>
+    <Script name="Export-SensibleGroupMembers" parameter="%SID%-1101" />
+    <resultCode success='0' warning='1' error='2'
+                SuccessMessage="test script worked successfully"
+                WarningMessage="test script raise a warning: please review the output"
+                ErrorMessage="Test script failed to run!" />
+  </Task>
+
+  <Task Name="Search for assets with SID History populated" Frequency="Monthly" Enabled="Yes">
+    <runAt quarter='3' hour='15' Day='3' week='4'/>
+    <Script name="Search-AccountsWithSidhistory" parameter="" />
+    <resultCode success='0' warning='1' error='2'
+                SuccessMessage="test script worked successfully"
+                WarningMessage="test script raise a warning: please review the output"
+                ErrorMessage="Test script failed to run!" />
+  </Task>
+
+  <Task Name="Search for computer accounts inactive for at least 90 days" Frequency="Monthly" Enabled="Yes">
+    <runAt quarter='3' hour='15' Day='3' week='4'/>
+    <Script name="Export-ComputerNotPresent" parameter="90" />
+    <resultCode success='0' warning='1' error='2'
+                SuccessMessage="test script worked successfully"
+                WarningMessage="test script raise a warning: please review the output"
+                ErrorMessage="Test script failed to run!" />
+  </Task>
+  
+  <Task Name="Search for computer accounts with legacy operating system" Frequency="Monthly" Enabled="Yes">
+    <runAt quarter='3' hour='15' Day='3' week='4'/>
+    <Script name="Search-ComputerWithLegacyOS" parameter="" />
+    <resultCode success='0' warning='1' error='2'
+                SuccessMessage="test script worked successfully"
+                WarningMessage="test script raise a warning: please review the output"
+                ErrorMessage="Test script failed to run!" />
+  </Task>
+
+  <Task Name="Search for computer accounts with no password change for the last 45 days (and active)" Frequency="Monthly" Enabled="Yes">
+    <runAt quarter='3' hour='15' Day='3' week='4'/>
+    <Script name="Export-ComputerWithNoPasswordChange" parameter="" />
+    <resultCode success='0' warning='1' error='2'
+                SuccessMessage="test script worked successfully"
+                WarningMessage="test script raise a warning: please review the output"
+                ErrorMessage="Test script failed to run!" />
+  </Task>
+
+  <Task Name="Ensure the attribute ms-DS-MachineAccountQuota is set to 0" Frequency="Monthly" Enabled="Yes">
+    <runAt quarter='3' hour='15' Day='3' week='4'/>
+    <Script name="Test-msDSmachineAccountQuota" parameter="" />
+    <resultCode success='0' warning='1' error='2'
+                SuccessMessage="test script worked successfully"
+                WarningMessage="test script raise a warning: please review the output"
+                ErrorMessage="Test script failed to run!" />
+  </Task>
+</Tasks>
